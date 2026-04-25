@@ -1,0 +1,7 @@
+# Ignore known vulnerabilities that are either false positives or acceptable risks
+# jaraco.context (sub-dependency of setuptools)
+CVE-2026-23949
+# starlette (dependency of fastapi)
+CVE-2024-47874
+# wheel
+CVE-2026-24049

@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Tracker | Smart Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        border: "hsl(214.3 31.8% 91.4%)",
+                        input: "hsl(214.3 31.8% 91.4%)",
+                        ring: "hsl(215 20.2% 65.1%)",
+                        background: "hsl(0 0% 100%)",
+                        foreground: "hsl(222.2 84% 4.9%)",
+                        primary: {
+                            DEFAULT: "hsl(222.2 47.4% 11.2%)",
+                            foreground: "hsl(210 40% 98%)",
+                        },
+                        secondary: {
+                            DEFAULT: "hsl(210 40% 96.1%)",
+                            foreground: "hsl(222.2 47.4% 11.2%)",
+                        },
+                        destructive: {
+                            DEFAULT: "hsl(0 84.2% 60.2%)",
+                            foreground: "hsl(210 40% 98%)",
+                        },
+                        muted: {
+                            DEFAULT: "hsl(210 40% 96.1%)",
+                            foreground: "hsl(215.4 16.3% 46.9%)",
+                        },
+                        accent: {
+                            DEFAULT: "hsl(210 40% 96.1%)",
+                            foreground: "hsl(222.2 47.4% 11.2%)",
+                        },
+                        orange: {
+                            accent: '#ff6b35'
+                        }
+                    },
+                    borderRadius: {
+                        lg: "0.5rem",
+                        md: "calc(0.5rem - 2px)",
+                        sm: "calc(0.5rem - 4px)",
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .sidebar { height: calc(100vh - 64px); }
+        .nav-item { transition: all 0.2s; }
+        .nav-item:hover {
+            background-color: hsl(210 40% 96.1%);
+            color: hsl(222.2 47.4% 11.2%);
+        }
+        .nav-item.active {
+            background-color: hsl(210 40% 96.1%);
+            color: hsl(222.2 47.4% 11.2%);
+            font-weight: 600;
+        }
+        .dark .nav-item:hover { background-color: hsl(217.2 32.6% 17.5%); color: hsl(210 40% 98%); }
+        .dark .nav-item.active { background-color: hsl(217.2 32.6% 17.5%); color: hsl(210 40% 98%); }
+        
+        .dark body { background-color: hsl(222.2 84% 4.9%); color: hsl(210 40% 98%); }
+        
+        /* Shadcn Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: hsl(214.3 31.8% 91.4%); border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: hsl(217.2 32.6% 17.5%); }
+    </style>
+</head>
+<body class="bg-background text-foreground selection:bg-orange-accent/10">
+
+    <!-- Top Navbar -->
+    <nav class="fixed top-0 left-0 right-0 h-16 bg-background border-b border-border z-50 flex items-center justify-between px-6">
+        <div class="flex items-center">
+            <div class="text-primary text-2xl mr-8 cursor-pointer hover:opacity-80 transition-opacity" onclick="showSection('dashboard', document.querySelector('.nav-item'))">
+                <i data-lucide="infinite" class="w-8 h-8"></i>
+            </div>
+            <div class="flex items-center gap-6 text-muted-foreground">
+                <div id="search-container" class="flex items-center">
+                    <i data-lucide="search" class="w-4 h-4 hover:text-foreground cursor-pointer transition-colors" onclick="toggleSearch()"></i>
+                    <input id="top-search" type="text" placeholder="Search..." class="hidden ml-2 bg-transparent border-b border-border focus:outline-none focus:border-primary text-sm py-1 transition-all w-0">
+                </div>
+                <i data-lucide="bell" class="w-4 h-4 hover:text-foreground cursor-pointer transition-colors" onclick="alert('No new notifications')"></i>
+                <i data-lucide="settings" class="w-4 h-4 hover:text-foreground cursor-pointer transition-colors" onclick="showSection('settings', this)"></i>
+                <i data-lucide="maximize" class="w-4 h-4 hover:text-foreground cursor-pointer transition-colors" onclick="toggleFullScreen()"></i>
+                <i id="theme-toggle" data-lucide="moon" class="w-4 h-4 hover:text-foreground cursor-pointer transition-colors" onclick="toggleDarkMode()"></i>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <span class="text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors" onclick="logout()">Sign Out</span>
+            <div class="user-initial w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold shadow-sm">U</div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="fixed left-0 top-16 w-64 bg-background border-r border-border sidebar overflow-y-auto">
+        <nav class="py-6 px-4 space-y-2">
+            <div class="nav-item active flex items-center px-4 py-2 text-sm font-medium rounded-md cursor-pointer" onclick="showSection('dashboard', this)">
+                <i data-lucide="layout-dashboard" class="w-4 h-4 mr-3"></i> Dashboard
+            </div>
+            <div class="nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md cursor-pointer" onclick="showSection('accounts', this)">
+                <i data-lucide="building-2" class="w-4 h-4 mr-3"></i> Accounts
+            </div>
+            <div class="nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md cursor-pointer" onclick="showSection('transactions', this)">
+                <i data-lucide="list" class="w-4 h-4 mr-3"></i> Transactions
+            </div>
+            <div class="nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md cursor-pointer" onclick="showSection('cash-flow', this)">
+                <i data-lucide="pie-chart" class="w-4 h-4 mr-3"></i> Cash Flow
+            </div>
+            <div class="nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md cursor-pointer" onclick="showSection('reports', this)">
+                <i data-lucide="file-text" class="w-4 h-4 mr-3"></i> Reports
+            </div>
+            <div class="nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md cursor-pointer" onclick="showSection('budget', this)">
+                <i data-lucide="wallet" class="w-4 h-4 mr-3"></i> Budget
+            </div>
+            <div class="nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md cursor-pointer" onclick="showSection('investments', this)">
+                <i data-lucide="trending-up" class="w-4 h-4 mr-3"></i> Investments
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-border">
+                <div class="nav-item ai-assistant text-primary font-bold flex items-center px-4 py-2 text-sm cursor-pointer" onclick="scrollToAI()">
+                    <i data-lucide="sparkles" class="w-4 h-4 mr-3"></i> AI Assistant
+                </div>
+                <div class="nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md cursor-pointer" onclick="showSection('help', this)">
+                    <i data-lucide="help-circle" class="w-4 h-4 mr-3"></i> Help & Support
+                </div>
+            </div>
+        </nav>
+        
+        <div class="absolute bottom-0 w-full p-4 border-t border-border bg-background">
+            <div class="flex items-center justify-between p-2 rounded-md hover:bg-accent cursor-pointer group transition-colors">
+                <div class="flex items-center gap-3">
+                    <div class="user-initial w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold shadow-sm">U</div>
+                    <span class="user-name text-sm font-semibold">User</span>
+                </div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-64 mt-16 p-8 min-h-screen bg-background">
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="section">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Recent Transactions -->
+                <div class="bg-background rounded-lg border border-border p-6 shadow-sm">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="text-lg font-semibold leading-none tracking-tight">Recent Transactions</h3>
+                            <p class="text-sm text-muted-foreground mt-1.5">Your latest spending activity</p>
+                        </div>
+                        <button onclick="toggleModal()" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">+ New Entry</button>
+                    </div>
+                    <div id="transaction-list" class="space-y-3">
+                        <!-- Dynamic transactions -->
+                    </div>
+                </div>
+
+                <div class="space-y-8">
+                    <!-- Dashboard Balance Card -->
+                    <div class="bg-primary text-primary-foreground rounded-lg p-6 shadow-sm relative overflow-hidden">
+                        <div class="relative z-10">
+                            <p class="text-xs font-medium opacity-80 mb-1 tracking-wider uppercase">Total Balance</p>
+                            <h2 id="dash-total-balance" class="text-3xl font-bold tracking-tight">$0.00</h2>
+                            <div class="mt-4 flex gap-2">
+                                <span class="bg-primary-foreground/20 px-2.5 py-0.5 rounded-full text-[10px] font-semibold">ACTIVE ASSETS</span>
+                            </div>
+                        </div>
+                        <i data-lucide="wallet" class="absolute -right-2 -bottom-2 w-24 h-24 opacity-10"></i>
+                    </div>
+
+                    <!-- AI Assistant -->
+                    <div class="bg-background rounded-lg border border-border p-6 shadow-sm h-[320px] flex flex-col">
+                        <h3 class="text-lg font-semibold leading-none tracking-tight mb-6 flex items-center">
+                            <i data-lucide="bot" class="w-5 h-5 mr-2 text-primary"></i> AI Assistant
+                        </h3>
+                        <div id="chat-box" class="flex-grow overflow-y-auto mb-6 space-y-4 text-sm pr-2 scroll-smooth">
+                            <div class="bg-muted p-4 rounded-lg rounded-tl-none max-w-[90%] leading-relaxed text-muted-foreground">
+                                Hello! I'm your AI financial assistant. How can I help you today?
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <input id="chat-input" type="text" placeholder="Ask anything..." class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                            <button onclick="sendMessage()" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accounts Section -->
+        <div id="accounts-section" class="section hidden">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold tracking-tight">Accounts</h2>
+                    <p class="text-sm text-muted-foreground">Total control over your financial assets</p>
+                </div>
+                <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-6 py-2 shadow-sm">+ Add Account</button>
+            </div>
+            
+            <div class="bg-primary text-primary-foreground rounded-lg p-8 mb-8 shadow-sm relative overflow-hidden">
+                <div class="relative z-10">
+                    <p class="text-xs font-medium opacity-80 mb-2 tracking-wider uppercase">TOTAL NET WORTH</p>
+                    <h1 id="total-net-worth" class="text-4xl font-bold tracking-tight">$0.00</h1>
+                </div>
+                <i data-lucide="building" class="absolute -right-8 -bottom-8 w-48 h-48 opacity-10 rotate-12"></i>
+            </div>
+
+            <div id="accounts-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamic accounts -->
+            </div>
+        </div>
+
+        <!-- Transactions Section -->
+        <div id="transactions-section" class="section hidden">
+             <div class="bg-background rounded-lg border border-border p-8 shadow-sm min-h-[700px]">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold tracking-tight">History</h2>
+                        <p class="text-sm text-muted-foreground mt-1">Detailed log of all activities</p>
+                    </div>
+                    <div class="flex gap-3 w-full md:w-auto">
+                        <div class="relative flex-grow">
+                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground"></i>
+                            <input type="text" placeholder="Search..." class="flex h-9 w-full rounded-md border border-input bg-background pl-9 pr-3 py-1 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                        </div>
+                        <button onclick="toggleModal()" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2 shadow-sm">New</button>
+                    </div>
+                </div>
+                <div id="all-transactions-list" class="divide-y divide-border">
+                    <!-- Dynamic history -->
+                </div>
+             </div>
+        </div>
+
+        <!-- Cash Flow Section -->
+        <div id="cash-flow-section" class="section hidden">
+            <div class="mb-10">
+                <h2 class="text-2xl font-bold tracking-tight">Cash Flow</h2>
+                <p class="text-sm text-muted-foreground">Monthly income vs. expense comparison</p>
+            </div>
+            <div class="grid grid-cols-1 gap-8">
+                <div class="bg-background rounded-lg border border-border p-8 shadow-sm">
+                    <div class="flex items-center justify-between mb-10">
+                        <h3 class="text-lg font-semibold">Monthly Breakdown</h3>
+                        <div class="flex gap-4">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <span class="text-xs text-muted-foreground">Income</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-destructive rounded-full"></div>
+                                <span class="text-xs text-muted-foreground">Expense</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="cash-flow-stats" class="space-y-8">
+                        <!-- Dynamic bars -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Budget Section -->
+        <div id="budget-section" class="section hidden">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold tracking-tight">Budgets</h2>
+                    <p class="text-sm text-muted-foreground">Monitor your monthly spending limits</p>
+                </div>
+                <button onclick="seedBudgets()" class="inline-flex items-center justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-6 py-2 shadow-sm">Initialize Budgets</button>
+            </div>
+            <div id="budget-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Dynamic budgets -->
+            </div>
+            <div id="budget-empty" class="hidden text-center py-20 border border-dashed border-border rounded-lg">
+                <p class="text-muted-foreground">No budgets set yet. Click "Initialize" to get started!</p>
+            </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div id="reports-section" class="section hidden">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold tracking-tight">Financial Reports</h2>
+                <p class="text-sm text-muted-foreground">30-day performance analysis</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-background rounded-lg border border-border p-6">
+                    <p class="text-xs font-medium text-muted-foreground uppercase mb-1">Total Income</p>
+                    <h3 id="report-income" class="text-2xl font-bold text-green-600">$0.00</h3>
+                </div>
+                <div class="bg-background rounded-lg border border-border p-6">
+                    <p class="text-xs font-medium text-muted-foreground uppercase mb-1">Total Expenses</p>
+                    <h3 id="report-expense" class="text-2xl font-bold text-destructive">$0.00</h3>
+                </div>
+                <div class="bg-background rounded-lg border border-border p-6">
+                    <p class="text-xs font-medium text-muted-foreground uppercase mb-1">Net Savings</p>
+                    <h3 id="report-savings" class="text-2xl font-bold text-primary">$0.00</h3>
+                </div>
+            </div>
+            <div class="bg-background rounded-lg border border-border p-6">
+                <h3 class="text-lg font-semibold mb-6">Spending by Category</h3>
+                <div id="category-report" class="space-y-4">
+                    <!-- Dynamic categories -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Placeholder Section -->
+        <div id="placeholder-section" class="section hidden">
+            <div class="bg-background rounded-lg flex flex-col items-center justify-center min-h-[600px] text-center border border-border">
+                <div class="text-primary/10 bg-primary/5 w-24 h-24 rounded-full flex items-center justify-center mb-6">
+                    <i data-lucide="hammer" class="w-12 h-12"></i>
+                </div>
+                <h2 id="placeholder-title" class="text-2xl font-bold mb-2">Coming Soon</h2>
+                <p class="text-muted-foreground max-w-xs text-base">We are polishing the <span id="placeholder-name" class="text-primary font-semibold"></span> experience. Stay tuned!</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center p-4 z-[100]">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-8 shadow-2xl">
+            <h3 class="text-xl font-bold mb-6 dark:text-white">New Transaction</h3>
+            <form onsubmit="addEntry(event)" class="space-y-4">
+                <input id="desc" type="text" placeholder="Description" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-3 rounded-xl focus:outline-none focus:border-orange-accent dark:text-white">
+                <div class="grid grid-cols-2 gap-4">
+                    <input id="amount" type="number" step="0.01" placeholder="Amount" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-3 rounded-xl focus:outline-none focus:border-orange-accent dark:text-white">
+                    <select id="type" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-3 rounded-xl focus:outline-none focus:border-orange-accent dark:text-white">
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Select Account</label>
+                    <select id="account-select" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-3 rounded-xl focus:outline-none focus:border-orange-accent dark:text-white">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <input id="category" type="text" placeholder="Category (e.g. Shopping, Rent)" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-3 rounded-xl focus:outline-none focus:border-orange-accent dark:text-white">
+                <div class="flex gap-4 pt-4">
+                    <button type="button" onclick="toggleModal()" class="flex-grow border border-gray-200 dark:border-gray-600 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-300">Cancel</button>
+                    <button type="submit" class="flex-grow bg-orange-accent text-white py-3 rounded-xl font-bold shadow-lg shadow-orange-accent/20">Save Transaction</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = '/login';
+
+        async function fetchEntries() {
+            const res = await fetch('/api/entries/', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            const list = document.getElementById('transaction-list');
+            list.innerHTML = '';
+            data.forEach(e => {
+                list.innerHTML += `
+                    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition cursor-pointer">
+                        <div>
+                            <p class="font-bold text-sm">${e.description}</p>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">${e.category || 'GENERAL'}</p>
+                        </div>
+                        <p class="font-bold text-sm ${e.type === 'income' ? 'text-green-500' : 'text-red-500'}">
+                            ${e.type === 'income' ? '+' : '-'}$${e.amount.toFixed(2)}
+                        </p>
+                    </div>
+                `;
+            });
+        }
+
+        async function addEntry(e) {
+            e.preventDefault();
+            const entry = {
+                description: document.getElementById('desc').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                type: document.getElementById('type').value,
+                category: document.getElementById('category').value,
+                account_id: parseInt(document.getElementById('account-select').value)
+            };
+            const res = await fetch('/api/entries/', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(entry)
+            });
+            if (res.ok) {
+                toggleModal();
+                fetchEntries();
+                if (!document.getElementById('accounts-section').classList.contains('hidden')) {
+                    fetchAccounts();
+                }
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const box = document.getElementById('chat-box');
+            if (!input.value) return;
+
+            const userMsg = input.value;
+            box.innerHTML += `<div class="bg-orange-50 p-4 rounded-xl rounded-tr-none ml-auto max-w-[90%] text-right leading-relaxed">${userMsg}</div>`;
+            input.value = '';
+            box.scrollTop = box.scrollHeight;
+            
+            const res = await fetch('/api/chat/', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ message: userMsg })
+            });
+            const data = await res.json();
+            box.innerHTML += `<div class="bg-gray-100 p-4 rounded-xl rounded-tl-none max-w-[90%] leading-relaxed">${data.reply}</div>`;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        async function toggleModal() { 
+            const modal = document.getElementById('modal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                // Populate accounts dropdown
+                const res = await fetch('/api/accounts/', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const accounts = await res.json();
+                const select = document.getElementById('account-select');
+                select.innerHTML = accounts.map(acc => `<option value="${acc.id}">${acc.name} ($${acc.balance.toFixed(2)})</option>`).join('');
+            }
+        }
+        function logout() { localStorage.removeItem('token'); window.location.href = '/login'; }
+
+        function showSection(name, el) {
+            // Update nav active state
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            if (el) el.classList.add('active');
+
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            
+            const target = document.getElementById(`${name}-section`);
+            if (target) {
+                target.classList.remove('hidden');
+                if (name === 'accounts') fetchAccounts();
+                if (name === 'transactions') fetchEntries();
+                if (name === 'budget') fetchBudgets();
+                if (name === 'reports') fetchReports();
+                if (name === 'cash-flow') fetchCashFlow();
+            } else {
+                const placeholder = document.getElementById('placeholder-section');
+                if (placeholder) {
+                    placeholder.classList.remove('hidden');
+                    document.getElementById('placeholder-name').textContent = name.charAt(0).toUpperCase() + name.slice(1);
+                }
+            }
+            lucide.createIcons();
+        }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-toggle');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                icon.setAttribute('data-lucide', 'moon');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                icon.setAttribute('data-lucide', 'sun');
+            }
+            lucide.createIcons();
+        }
+
+        // Initialize theme
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('theme-toggle').setAttribute('data-lucide', 'sun');
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.getElementById('theme-toggle').setAttribute('data-lucide', 'moon');
+        }
+
+        async function seedBudgets() {
+            const categories = [
+                { category: 'Food', limit: 500 },
+                { category: 'Shopping', limit: 300 },
+                { category: 'Rent', limit: 1200 },
+                { category: 'Travel', limit: 200 }
+            ];
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            for (const b of categories) {
+                await fetch('/api/budgets/', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ category: b.category, limit_amount: b.limit, month: currentMonth })
+                });
+            }
+            fetchBudgets();
+        }
+
+        async function fetchCashFlow() {
+            const res = await fetch('/api/reports/summary', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            const income = data.stats.income || 0;
+            const expense = data.stats.expense || 0;
+            const total = income + expense || 1;
+            
+            const stats = document.getElementById('cash-flow-stats');
+            stats.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="font-medium">Income vs Expenses</span>
+                        <span class="text-muted-foreground">$${income.toFixed(2)} / $${expense.toFixed(2)}</span>
+                    </div>
+                    <div class="h-8 w-full bg-muted rounded-md overflow-hidden flex">
+                        <div class="h-full bg-green-500 transition-all duration-500" style="width: ${(income/total*100)}%"></div>
+                        <div class="h-full bg-destructive transition-all duration-500" style="width: ${(expense/total*100)}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function fetchBudgets() {
+            const res = await fetch('/api/budgets/', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            const list = document.getElementById('budget-list');
+            list.innerHTML = '';
+            data.forEach(b => {
+                const percent = Math.min((b.spent_amount / b.limit_amount) * 100, 100);
+                list.innerHTML += `
+                    <div class="bg-background rounded-lg border border-border p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-semibold">${b.category}</h4>
+                            <span class="text-xs font-medium text-muted-foreground">$${b.spent_amount.toFixed(2)} / $${b.limit_amount.toFixed(2)}</span>
+                        </div>
+                        <div class="h-2 w-full bg-muted rounded-full overflow-hidden">
+                            <div class="h-full bg-primary transition-all duration-500" style="width: ${percent}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        async function fetchReports() {
+            const res = await fetch('/api/reports/summary', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            
+            const income = data.stats.income || 0;
+            const expense = data.stats.expense || 0;
+            
+            document.getElementById('report-income').textContent = `$${income.toLocaleString()}`;
+            document.getElementById('report-expense').textContent = `$${expense.toLocaleString()}`;
+            document.getElementById('report-savings').textContent = `$${(income - expense).toLocaleString()}`;
+            
+            const catReport = document.getElementById('category-report');
+            catReport.innerHTML = '';
+            Object.entries(data.categories).forEach(([cat, amount]) => {
+                const percent = (amount / expense * 100) || 0;
+                catReport.innerHTML += `
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="font-medium">${cat}</span>
+                            <span class="text-muted-foreground">$${amount.toFixed(2)} (${percent.toFixed(0)}%)</span>
+                        </div>
+                        <div class="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                            <div class="h-full bg-primary/60" style="width: ${percent}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        async function fetchAccounts() {
+            const res = await fetch('/api/accounts/', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            const grid = document.getElementById('accounts-grid');
+            grid.innerHTML = '';
+            let total = 0;
+            data.forEach(acc => {
+                total += acc.balance;
+                grid.innerHTML += `
+                    <div class="bg-background rounded-lg border border-border p-6 hover:shadow-md transition-all cursor-pointer group">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-10 h-10 bg-muted rounded-md flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                                <i data-lucide="${acc.type === 'Credit' ? 'credit-card' : 'building-2'}" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">${acc.type}</span>
+                        </div>
+                        <h4 class="font-semibold text-foreground mb-1">${acc.name}</h4>
+                        <p class="text-2xl font-bold tracking-tight ${acc.balance >= 0 ? 'text-foreground' : 'text-destructive'}">
+                            $${acc.balance.toLocaleString(undefined, {minimumFractionDigits: 2})}
+                        </p>
+                    </div>
+                `;
+            });
+            const totalStr = `$${total.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('total-net-worth').textContent = totalStr;
+            const dashTotal = document.getElementById('dash-total-balance');
+            if (dashTotal) dashTotal.textContent = totalStr;
+            lucide.createIcons();
+        }
+
+        async function fetchEntries() {
+            const res = await fetch('/api/entries/', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            
+            // Update Dashboard list
+            const dashList = document.getElementById('transaction-list');
+            if (dashList) {
+                dashList.innerHTML = '';
+                data.slice(0, 5).reverse().forEach(e => {
+                    dashList.innerHTML += `
+                        <div class="flex justify-between items-center p-4 bg-muted/40 rounded-lg border border-transparent hover:border-border hover:bg-muted/60 transition-all cursor-pointer">
+                            <div class="flex items-center gap-4">
+                                <div class="w-9 h-9 bg-background rounded-md flex items-center justify-center text-muted-foreground border border-border">
+                                    <i data-lucide="shopping-bag" class="w-4.5 h-4.5"></i>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-sm">${e.description}</p>
+                                    <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-tighter">${e.category || 'GENERAL'}</p>
+                                </div>
+                            </div>
+                            <p class="font-bold text-sm ${e.type === 'income' ? 'text-green-600' : 'text-destructive'}">
+                                ${e.type === 'income' ? '+' : '-'}$${e.amount.toFixed(2)}
+                            </p>
+                        </div>
+                    `;
+                });
+            }
+
+            // Update Full History list
+            const fullList = document.getElementById('all-transactions-list');
+            if (fullList) {
+                fullList.innerHTML = '';
+                data.slice().reverse().forEach(e => {
+                    fullList.innerHTML += `
+                        <div class="flex justify-between items-center p-4 hover:bg-muted/50 transition-all cursor-pointer group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-muted rounded-md flex items-center justify-center text-muted-foreground group-hover:text-primary transition-all">
+                                    <i data-lucide="receipt" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-foreground">${e.description}</p>
+                                    <p class="text-xs text-muted-foreground">${new Date(e.timestamp).toLocaleDateString()} • ${e.category}</p>
+                                </div>
+                            </div>
+                            <p class="font-bold text-lg ${e.type === 'income' ? 'text-green-600' : 'text-destructive'}">
+                                ${e.type === 'income' ? '+' : '-'}$${e.amount.toFixed(2)}
+                            </p>
+                        </div>
+                    `;
+                });
+            }
+            lucide.createIcons();
+        }
+
+        function scrollToAI() {
+            showSection('dashboard', document.querySelector('.nav-item[onclick*="dashboard"]'));
+            document.getElementById('chat-input').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.getElementById('chat-input').focus();
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        function toggleSearch() {
+            const input = document.getElementById('top-search');
+            if (input.classList.contains('hidden')) {
+                input.classList.remove('hidden');
+                input.style.width = '150px';
+                input.focus();
+            } else {
+                input.style.width = '0';
+                setTimeout(() => input.classList.add('hidden'), 300);
+            }
+        }
+
+        async function fetchUser() {
+            const res = await fetch('/api/auth/me', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const user = await res.json();
+                const initial = user.username.charAt(0).toUpperCase();
+                document.querySelectorAll('.user-initial').forEach(el => el.textContent = initial);
+                document.querySelectorAll('.user-name').forEach(el => el.textContent = user.username);
+            }
+        }
+
+        window.onload = () => {
+            fetchUser();
+            fetchEntries();
+            fetchAccounts();
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

@@ -3,8 +3,11 @@ cache:
 
 db:
   no-progress: false
-  
+
 vulnerability:
   ignore-unfixed: true
   severity:
     - CRITICAL
+    - HIGH
+
+ignorefile: .trivyignore

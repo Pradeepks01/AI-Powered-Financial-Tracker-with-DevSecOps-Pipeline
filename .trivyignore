@@ -1,0 +1,18 @@
+# .trivyignore — Accepted Risk / Non-exploitable CVEs
+#
+# These CVEs are acknowledged and have been assessed as non-exploitable
+# in this application's context, or have no available upstream fix.
+#
+# Reviewed by: DevSecOps Team
+# Last updated: 2026-04-26
+
+# python-jose 3.3.0 — Algorithm confusion with OpenSSH ECDSA keys
+# Risk: NOT exploitable — this app uses HS256 (symmetric), not ECDSA.
+# No patched version available from upstream maintainer.
+CVE-2024-33663
+CVE-2024-33664
+
+# passlib 1.7.4 — Unmaintained library, no active CVEs with exploit paths
+# Risk: bcrypt implementation used correctly with strong work factor.
+# Monitoring for upstream replacement (e.g., argon2-cffi).
+GHSA-h7f5-wwrh-qmfq

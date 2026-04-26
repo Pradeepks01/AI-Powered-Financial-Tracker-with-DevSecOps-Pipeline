@@ -1,27 +1,47 @@
-# Use an official Python runtime as a parent image
-FROM python:3.11-slim
+# ============================================================
+# AI-Powered Financial Tracker - Production Dockerfile
+# ============================================================
+# Multi-stage build for a lean, security-hardened image
 
-# Set the working directory in the container
+# --- Stage 1: Builder ---
+FROM python:3.11-slim-bookworm AS builder
+
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
+# Install build dependencies only in builder stage
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libmariadb-dev \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the requirements file into the container
 COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# --- Stage 2: Runtime ---
+FROM python:3.11-slim-bookworm AS runtime
 
-# Copy the rest of the application code
+WORKDIR /app
+
+# Upgrade all OS packages to latest security patches (critical for Trivy)
+RUN apt-get update && apt-get upgrade -y --no-install-recommends \
+    && apt-get install -y --no-install-recommends \
+        libmariadb3 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy installed Python packages from builder
+COPY --from=builder /root/.local /root/.local
+
+# Copy application source
 COPY . .
 
-# Expose the port the app runs on
+# Run as non-root user for security
+RUN useradd -m -u 1001 appuser && chown -R appuser:appuser /app
+USER appuser
+
+ENV PATH=/root/.local/bin:$PATH
+
 EXPOSE 8000
 
-# Command to run the application
 CMD ["python", "main.py"]

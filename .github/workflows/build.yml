@@ -71,6 +71,10 @@ jobs:
           name: trivy-scan-report
           path: trivy-report.txt
 
+      - name: Show Trivy Report
+        if: always()
+        run: cat trivy-report.txt
+
   # ============================================================
   # GATE 7: PUSH TO ECR
   # ============================================================

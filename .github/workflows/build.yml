@@ -86,6 +86,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Debug AWS_ROLE_ARN
+        run: |
+          echo "AWS_ROLE_ARN base64 encoded:"
+          echo -n "${{ secrets.AWS_ROLE_ARN }}" | base64
+
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:

@@ -1,75 +1,113 @@
 # 💰 AI-Powered Financial Tracker with DevSecOps Pipeline
 
-**A premium, state-of-the-art financial management tool with an integrated AI advisor, secured by an industry-leading DevSecOps pipeline on Amazon EC2.**
+[![CI/CD Pipeline](https://img.shields.io/badge/Pipeline-DevSecOps-blueviolet?style=for-the-badge&logo=githubactions)](https://github.com/Pradeepks01/AI-Powered-Financial-Tracker-with-DevSecOps-Pipeline/actions)
+[![Security Scan](https://img.shields.io/badge/Security-Trivy%20%7C%20Semgrep%20%7C%20Gitleaks-success?style=for-the-badge)](https://github.com/Pradeepks01/AI-Powered-Financial-Tracker-with-DevSecOps-Pipeline/security)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge&logo=python)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
+
+**A premium, state-of-the-art financial management tool with an integrated AI advisor, secured by an industry-leading DevSecOps pipeline on Amazon AWS.**
 
 ---
 
-## 🏗️ Architecture & Features
+## 🏗️ Architecture Overview
 
-- **🧠 AI Advisor**: Context-aware financial assistant powered by Ollama (TinyLlama), self-hosted for maximum privacy.
-- **🌓 Premium UI**: Stunning Glassmorphism dashboard with Dark/Light mode and separate Login/Register pages.
-- **🔐 Secure Auth**: Python-based security with **BCrypt password hashing** and **JWT authentication**.
-- **📊 Observability**: Built-in Prometheus metrics via `/actuator/prometheus`.
+The system follows a modern microservices-lite architecture, leveraging FastAPI for high-performance asynchronous operations and a self-hosted AI engine for privacy-focused financial insights.
 
-## 🚀 DevSecOps Pipeline Stages
-
-The CI/CD pipeline enforces **9 sequential security gates** before any code reaches production:
-
-| Stage | Tool | Description |
-| :--- | :--- | :--- |
-| **1. Secret Scan** | **Gitleaks** | Scans entire Git history for leaked secrets and sensitive data. |
-| **2. Lint** | **Flake8** | Enforces Python (PEP8) coding standards for high-quality code. |
-| **3. SAST** | **Semgrep** | Scans Python source code for security flaws and OWASP Top 10 vulnerabilities. |
-| **4. SCA** | **Pip-audit** | Scans Python dependencies for known CVEs (Software Composition Analysis). |
-| **5. Build** | **Docker** | Packages the application into a secure, production-ready container image. |
-| **6. Container Scan** | **Trivy** | Scans the Docker image for OS and library-level vulnerabilities. |
-| **7. Push** | **Amazon ECR** | Pushes the verified image to AWS ECR only after security scans pass. |
-| **8. Deploy** | **SSH / Docker Compose** | Automated deployment to AWS EC2 using rebranded manifests. |
-| **9. DAST** | **OWASP ZAP** | Performs dynamic attack surface scanning on the live application. |
-
----
-
-## 🚢 Technical Implementation
-
-### Frontend (High-Fidelity UI/UX)
-- **Glassmorphism Interface**: Using Tailwind CSS and Vanilla JS for a lightweight but premium feel.
-- **Dynamic Dashboard**: Real-time stats for Income, Expenses, and Net Savings.
-- **Separate Auth Flow**: Dedicated `login.html` and `register.html` for a professional user experience.
-
-### Backend (Python FastAPI)
-- **Asynchronous Engine**: Built with FastAPI for high-speed data retrieval.
-- **Security**: Integrated JWT flow with `passlib` for secure credential handling.
-- **Database**: Relational data persistence using MySQL 8.0.
-
-### 📂 Directory Structure
-```text
-├── .github/workflows/    # CI/CD DevSecOps Pipeline (GitHub Actions)
-├── scripts/              # Setup and utility scripts (e.g., Ollama model pull)
-├── src/                  # FastAPI Backend Source Code
-│   ├── api/              # API Endpoints (Auth, Chat, Entries)
-│   ├── core/             # Configuration and Security (JWT, Hashing)
-│   ├── db/               # Database Connection and Models
-│   └── schemas/          # Pydantic Validation Schemas
-├── templates/            # Frontend HTML (Glassmorphism UI)
-├── app-tier.yml          # Production Docker Compose for EC2
-├── docker-compose.yml    # Local Development Docker Compose
-└── Dockerfile            # Multi-stage optimized Docker build
+```mermaid
+graph TD
+    User([User]) -->|HTTPS| App[FastAPI Application]
+    App -->|SQL| MySQL[(MySQL 8.0)]
+    App -->|REST| Ollama[Ollama AI Engine - TinyLlama]
+    App -->|Metrics| Prometheus[Prometheus Instrumentator]
+    
+    subgraph CI/CD Security Gates
+        Code[GitHub Repo] -->|Push| Gitleaks[1. Secret Scan]
+        Gitleaks --> Flake8[2. Linting]
+        Flake8 --> Semgrep[3. SAST]
+        Semgrep --> PipAudit[4. SCA]
+        PipAudit --> Build[5. Docker Build]
+        Build --> Trivy[6. Container Scan]
+        Trivy --> ECR[7. Amazon ECR]
+        ECR --> Deploy[8. EC2 Deployment]
+        Deploy --> ZAP[9. DAST Scan]
+    end
 ```
 
 ---
 
-## 🚀 Quick Start
+## 🌟 Key Features
 
-### 1. Local Development (Docker)
+- **🧠 AI Financial Advisor**: Context-aware assistance powered by **Ollama (TinyLlama)**. Get personalized advice on spending habits and savings goals.
+- **🌓 Premium UI/UX**: Stunning **Glassmorphism** dashboard built with Tailwind CSS and Vanilla JS. Full Dark/Light mode support.
+- **🔐 Enterprise-Grade Auth**: Secure authentication flow using **JWT (JSON Web Tokens)** and **BCrypt** password hashing.
+- **📊 Real-time Observability**: Integrated **Prometheus** metrics endpoint for monitoring application health and performance.
+- **🛡️ Secure-by-Design**: Every commit is subjected to 9 sequential security gates before reaching production.
+
+---
+
+## 🛡️ DevSecOps Pipeline
+
+Our pipeline enforces a "Shift-Left" security strategy, ensuring that vulnerabilities are identified and mitigated early in the development lifecycle.
+
+| Stage | Tool | Category | Description |
+| :--- | :--- | :--- | :--- |
+| **1. Secret Scan** | **Gitleaks** | Secrets | Detects hardcoded credentials, API keys, and tokens. |
+| **2. Code Lint** | **Flake8** | Quality | Enforces PEP8 standards and identifies syntax errors. |
+| **3. SAST** | **Semgrep** | Static Analysis | Scans source code for security patterns and OWASP vulnerabilities. |
+| **4. SCA** | **Pip-audit** | Dependencies | Identifies known CVEs in third-party Python packages. |
+| **5. Build** | **Docker** | Packaging | Creates a multi-stage, optimized production image. |
+| **6. Image Scan** | **Trivy** | Container | Scans the container image for OS-level vulnerabilities. |
+| **7. Image Registry**| **Amazon ECR**| Storage | Securely stores verified container images. |
+| **8. Deployment** | **Docker Compose**| CD | Automated rollouts to Amazon EC2 via GitHub Actions. |
+| **9. DAST** | **OWASP ZAP** | Dynamic Analysis| Performs active security testing against the running app. |
+
+---
+
+## 📂 Project Structure
+
+```text
+├── .github/workflows/    # CI/CD & DevSecOps Pipeline Definitions
+├── scripts/              # Infrastructure and utility scripts
+├── src/                  # Backend Logic (FastAPI)
+│   ├── api/              # Route handlers (Auth, Chat, Entries, Accounts)
+│   ├── core/             # Security (JWT, Hashing) and Config
+│   ├── db/               # Database schemas and Session management
+│   ├── models/           # SQLAlchemy Data Models
+│   ├── schemas/          # Pydantic validation schemas
+│   └── services/         # Business logic layer
+├── templates/            # Frontend (Glassmorphism HTML/JS)
+├── app-tier.yml          # Production Docker Compose stack
+├── docker-compose.yml    # Local Development stack
+├── Dockerfile            # Optimized Multi-stage Docker build
+└── requirements.txt      # Python dependencies
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Local Development
+Ensure you have Docker and Docker Compose installed:
+
 ```bash
+# Clone the repository
+git clone https://github.com/Pradeepks01/AI-Powered-Financial-Tracker-with-DevSecOps-Pipeline.git
+cd AI-Powered-Financial-Tracker-with-DevSecOps-Pipeline
+
+# Start the application
 docker-compose up --build
 ```
-Access the dashboard at `http://localhost:8000`.
+The application will be available at `http://localhost:8000`.
 
-### 2. AWS Secrets Manager
-Create a secret named `financial-tracker/prod-secrets` with the following keys:
-`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `OLLAMA_URL`.
+### 2. Deployment Setup
+To deploy to AWS, ensure you have the following secrets configured in GitHub:
+- `AWS_ACCESS_KEY_ID` & `AWS_SECRET_ACCESS_KEY`
+- `AWS_REGION`
+- `AWS_ROLE_ARN` (for OIDC authentication)
+- `EC2_HOST` & `EC2_USERNAME`
+- `SSH_PRIVATE_KEY`
 
 ---
 
-**Developed for the DevSecOps community.** 🚀
+

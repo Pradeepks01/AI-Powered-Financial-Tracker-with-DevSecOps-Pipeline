@@ -1,5 +1,7 @@
 # AI-Powered Financial Tracker with DevSecOps Pipeline
 
+![Architecture Diagram](https://raw.githubusercontent.com/Pradeepks01/AI-Powered-Financial-Tracker-with-DevSecOps-Pipeline/feat/gitops-eks/docs/architecture.png)
+
 ## 🚀 Overview
 The **AI-Powered Financial Tracker** is a state-of-the-art FastAPI application designed to help users manage their finances with AI-driven insights. This project demonstrates a complete **DevSecOps lifecycle**, from automated secure builds to GitOps-based deployment on AWS EKS.
 

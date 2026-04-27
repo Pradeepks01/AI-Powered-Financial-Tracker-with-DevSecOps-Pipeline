@@ -1,6 +1,6 @@
 # 💰 AI-Powered Financial Tracker with DevSecOps Pipeline
 
-**A premium, state-of-the-art financial management tool with an integrated AI advisor, secured by an industry-leading DevSecOps pipeline on Amazon EKS.**
+**A premium, state-of-the-art financial management tool with an integrated AI advisor, secured by an industry-leading DevSecOps pipeline on Amazon EC2.**
 
 ---
 
@@ -39,6 +39,22 @@ The CI/CD pipeline enforces **9 sequential security gates** before any code reac
 ### Backend (Python FastAPI)
 - **Asynchronous Engine**: Built with FastAPI for high-speed data retrieval.
 - **Security**: Integrated JWT flow with `passlib` for secure credential handling.
+- **Database**: Relational data persistence using MySQL 8.0.
+
+### 📂 Directory Structure
+```text
+├── .github/workflows/    # CI/CD DevSecOps Pipeline (GitHub Actions)
+├── scripts/              # Setup and utility scripts (e.g., Ollama model pull)
+├── src/                  # FastAPI Backend Source Code
+│   ├── api/              # API Endpoints (Auth, Chat, Entries)
+│   ├── core/             # Configuration and Security (JWT, Hashing)
+│   ├── db/               # Database Connection and Models
+│   └── schemas/          # Pydantic Validation Schemas
+├── templates/            # Frontend HTML (Glassmorphism UI)
+├── app-tier.yml          # Production Docker Compose for EC2
+├── docker-compose.yml    # Local Development Docker Compose
+└── Dockerfile            # Multi-stage optimized Docker build
+```
 
 ---
 
@@ -57,5 +73,3 @@ Create a secret named `financial-tracker/prod-secrets` with the following keys:
 ---
 
 **Developed for the DevSecOps community.** 🚀
-
-# AI-Powered-Financial-Tracker-with-DevSecOps-Pipeline

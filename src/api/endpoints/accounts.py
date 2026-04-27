@@ -25,7 +25,7 @@ def read_accounts(db: Session = Depends(session.get_db), current_user: models.Us
 
 @router.post("/", response_model=account_schemas.Account)
 def create_account(account: account_schemas.AccountCreate, db: Session = Depends(session.get_db), current_user: models.User = Depends(get_current_user)):
-    db_account = models.Account(**account.dict(), user_id=current_user.id)
+    db_account = models.Account(**account.model_dump(), user_id=current_user.id)
     db.add(db_account)
     db.commit()
     db.refresh(db_account)

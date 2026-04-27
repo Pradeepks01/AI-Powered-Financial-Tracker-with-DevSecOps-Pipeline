@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from src.db import models, session
 from src.schemas import entries as entry_schemas
 from src.api.endpoints.auth import get_current_user
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter()
 
@@ -13,7 +13,7 @@ def create_entry(
     db: Session = Depends(session.get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    db_entry = models.FinancialEntry(**entry.dict(), user_id=current_user.id)
+    db_entry = models.FinancialEntry(**entry.model_dump(), user_id=current_user.id)
     db.add(db_entry)
     
     # Update account balance if account_id is provided
@@ -27,7 +27,7 @@ def create_entry(
                 
     # Update budget if it's an expense
     if entry.type.lower() == "expense" and entry.category:
-        current_month = datetime.utcnow().strftime("%Y-%m")
+        current_month = datetime.now(timezone.utc).strftime("%Y-%m")
         budget = db.query(models.Budget).filter(
             models.Budget.user_id == current_user.id,
             models.Budget.category == entry.category,

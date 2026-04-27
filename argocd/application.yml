@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: financial-tracker
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/TrainWithShubham/AI-financial-tracker-DevOps.git
+    targetRevision: feat/gitops
+    path: k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: financial-tracker
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

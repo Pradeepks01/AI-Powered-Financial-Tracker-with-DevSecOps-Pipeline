@@ -1,16 +1,13 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, FileResponse
-from src.api.endpoints import auth, entries, chat, accounts
 from src.api.api import api_router
-from src.db.session import engine, Base
+from src.db.session import engine, Base, SessionLocal
+from sqlalchemy import text
 from src.core.config import settings
 from prometheus_fastapi_instrumentator import Instrumentator
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-from sqlalchemy import text
-from src.db.session import engine, Base, SessionLocal
 
 # Initialize DB
 Base.metadata.create_all(bind=engine)
@@ -27,7 +24,11 @@ except Exception:
 finally:
     db.close()
 
-app = FastAPI(title="AI-Powered Financial Tracker")
+app = FastAPI(title=settings.PROJECT_NAME)
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
 
 # Instrument for Prometheus
 Instrumentator().instrument(app).expose(app, endpoint="/actuator/prometheus")

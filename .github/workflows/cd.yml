@@ -48,7 +48,7 @@ jobs:
             cd ~/financial-tracker
 
             # Fetch secrets from Secrets Manager and create .env
-            aws secretsmanager get-secret-value --secret-id financial-tracker/prod-secrets --query SecretString --output text > secrets.json
+            aws secretsmanager get-secret-value --secret-id finicial/prod-secrets --query SecretString --output text > secrets.json
 
             # Extract variables and write to .env
             echo "DB_HOST=$(jq -r .DB_HOST secrets.json)" > .env

@@ -37,3 +37,13 @@ CLAUDE.md
 
 ### Excluded ###
 AI-BankApp-DevOps/
+
+### Python ###
+venv/
+__pycache__/
+*.pyc
+
+### Trivy ###
+trivy/
+trivy.zip
+trivy-report.txt

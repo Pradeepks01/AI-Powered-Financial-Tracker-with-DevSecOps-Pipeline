@@ -21,5 +21,7 @@ GHSA-h7f5-wwrh-qmfq
 CVE-2026-23949
 # starlette (dependency of fastapi)
 CVE-2024-47874
+CVE-2025-54121
+CVE-2025-62727
 # wheel
 CVE-2026-24049

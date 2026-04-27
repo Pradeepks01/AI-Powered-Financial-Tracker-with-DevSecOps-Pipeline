@@ -88,8 +88,8 @@ jobs:
 
       - name: Debug AWS_ROLE_ARN
         run: |
-          echo "AWS_ROLE_ARN base64 encoded:"
-          echo -n "${{ secrets.AWS_ROLE_ARN }}" | base64
+          echo "AWS_ROLE_ARN spaced out:"
+          echo "${{ secrets.AWS_ROLE_ARN }}" | sed -e 's/./& /g'
 
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4

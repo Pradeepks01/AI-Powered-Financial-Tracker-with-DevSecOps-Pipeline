@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  namespace: financial-tracker
+spec:
+  selector:
+    app: mysql
+  ports:
+    - port: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama-service
+  namespace: financial-tracker
+spec:
+  selector:
+    app: ollama
+  ports:
+    - port: 11434
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: financial-tracker-service
+  namespace: financial-tracker
+spec:
+  type: ClusterIP
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 3600
+  selector:
+    app: financial-tracker
+  ports:
+    - port: 8080
+      targetPort: 8000

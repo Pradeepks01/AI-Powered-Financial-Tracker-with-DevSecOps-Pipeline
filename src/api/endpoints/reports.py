@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from src.db import models, session
 from src.api.endpoints.auth import get_current_user
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 router = APIRouter()
 
@@ -13,7 +13,7 @@ def get_summary(
     current_user: models.User = Depends(get_current_user)
 ):
     # Income vs Expense summary for last 30 days
-    last_30_days = datetime.utcnow() - timedelta(days=30)
+    last_30_days = datetime.now(timezone.utc) - timedelta(days=30)
     
     stats = db.query(
         models.FinancialEntry.type,

@@ -58,7 +58,7 @@ jobs:
             echo "DB_PASSWORD=$(jq -r .DB_PASSWORD secrets.json)" >> .env
             echo "OLLAMA_URL=$(jq -r .OLLAMA_URL secrets.json)" >> .env
             echo "ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com" >> .env
-            echo "ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}" >> .env
+            echo "ECR_REPOSITORY=financial-tracker" >> .env
             echo "IMAGE_TAG=${{ github.sha }}" >> .env
 
             # Clean up

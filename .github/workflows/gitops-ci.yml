@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 env:
-  DOCKERHUB_REPO: Pradeepks/ai-financial-tracker-eks
+  DOCKERHUB_REPO: pradeeepks/ai-financial-tracker-eks
 
 jobs:
   build-and-push:
